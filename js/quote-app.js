@@ -4,6 +4,7 @@ import { roundUp, generateRequestId } from './utils.js';
 import { addItem } from './state.js';
 import { renderTable, initDeleteHandler, initDrag } from './table.js';
 import { requestPrice } from './pricing.js';
+import Sortable from 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/modular/sortable.esm.js'
 
 window.addEventListener("DOMContentLoaded", () => {
     initDeleteHandler();
