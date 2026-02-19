@@ -1,3 +1,5 @@
+console.log("QUOTE APP LOADED");
+
 import { roundUp, generateRequestId } from './utils.js';
 import { addItem } from './state.js';
 import { renderTable, initDeleteHandler, initDrag } from './table.js';
