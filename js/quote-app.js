@@ -1,14 +1,31 @@
-import { renderTable } from './table.js';
-import { roundUp } from './utils.js';
+import { roundUp, generateRequestId } from './utils.js';
+import { addItem } from './state.js';
+import { renderTable, initDeleteHandler, initDrag } from './table.js';
+import { requestPrice } from './pricing.js';
 
-let items = [];
+window.addEventListener("DOMContentLoaded", () => {
+    initDeleteHandler();
+    initDrag();
 
-window.addItem = function() {
-   // your logic here
-   renderTable(items, deleteItem);
-};
+    document.getElementById("addItemBtn").addEventListener("click", handleAdd);
+});
 
-window.deleteItem = function(index) {
-   items.splice(index, 1);
-   renderTable(items, deleteItem);
-};
+async function handleAdd() {
+    const type = document.getElementById("itemType").value;
+    const length = parseFloat(document.getElementById("length").value);
+    const quantity = parseInt(document.getElementById("quantity").value) || 1;
+
+    const requestId = generateRequestId();
+
+    const unitPrice = await requestPrice({
+        type: "GET_PRICE",
+        pricingType: "PricingTypeML",
+        itemType: type,
+        requestId
+    });
+
+    const price = length * unitPrice;
+
+    addItem({ type, length, price, quantity });
+    renderTable();
+}
