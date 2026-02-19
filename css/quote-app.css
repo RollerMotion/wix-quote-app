@@ -9,7 +9,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: var(--bg);
+    background: red;
     color: var(--text);
     max-width: 900px;
     margin: 40px auto;
