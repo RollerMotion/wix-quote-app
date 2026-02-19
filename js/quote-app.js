@@ -198,16 +198,14 @@ window.addEventListener("message", (event) => {
 // Save Quote
 // ---------------------
 saveQuoteBtn.addEventListener("click", () => {
-    const quoteData = {
-        customer: customerNameInput.value,
-        date: quoteDateInput.value,
-        items: items,
-        quoteNumber: quoteNumberInput.value,
-        total: parseFloat(grandTotalSpan.textContent.replace(/[^0-9.-]+/g,""))
-    };
+const quoteData = {
+    quoteNumber: document.getElementById("quoteNumber").value,
+    customer: document.getElementById("customerName").value,
+    date: document.getElementById("quoteDate").value, // "dd/mm/yyyy"
+    items,
+    total: total
+};
 
-    window.parent.postMessage({
-        type: "SAVE_QUOTE",
-        quote: quoteData
-    }, "*");
+window.parent.postMessage({ type: "SAVE_QUOTE", quote: quoteData }, "*");
+
 });
