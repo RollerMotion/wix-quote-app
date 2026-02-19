@@ -33,10 +33,13 @@ function formatCurrency(value) {
 }
 
 // ---------------------
-// Initialize Date
+// Auto-fill date input in dd/mm/yyyy format
 // ---------------------
 const today = new Date();
-quoteDateInput.value = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+const formattedDate = String(today.getDate()).padStart(2, '0') + '/' +
+                      String(today.getMonth() + 1).padStart(2, '0') + '/' +
+                      today.getFullYear();
+document.getElementById("quoteDate").value = formattedDate;
 
 // ---------------------
 // Handle Pricing Type Input Toggle
