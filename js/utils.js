@@ -8,3 +8,7 @@ export function formatCurrency(value) {
         currency: 'USD'
     }).format(value);
 }
+
+export function generateRequestId() {
+    return Date.now() + Math.random();
+}
