@@ -1,26 +1,24 @@
-// Custom logger to filter out unrelated messages
-const log = (...args) => console.log("[QUOTE APP]", ...args);
-const warn = (...args) => console.warn("[QUOTE APP]", ...args);
-const error = (...args) => console.error("[QUOTE APP]", ...args);
+/* ============================
+   QUOTE APP DEBUG LOGGER
+   ============================ */
 
-// Filter console messages to only show [QUOTE APP] logs
-const originalLog = console.log;
-const originalWarn = console.warn;
-const originalError = console.error;
+const DEBUG = true; // turn to false in production
 
-console.log = (...args) => {
-    if(args[0] && typeof args[0] === "string" && args[0].includes("[QUOTE APP]")) originalLog(...args);
-};
-console.warn = (...args) => {
-    if(args[0] && typeof args[0] === "string" && args[0].includes("[QUOTE APP]")) originalWarn(...args);
-};
-console.error = (...args) => {
-    if(args[0] && typeof args[0] === "string" && args[0].includes("[QUOTE APP]")) originalError(...args);
-};
+function appLog(...args) {
+    if (DEBUG) console.log("%c[QUOTE APP]", "color:#2ecc71;font-weight:bold;", ...args);
+}
+
+function appWarn(...args) {
+    if (DEBUG) console.warn("%c[QUOTE APP]", "color:#f39c12;font-weight:bold;", ...args);
+}
+
+function appError(...args) {
+    console.error("%c[QUOTE APP]", "color:#e74c3c;font-weight:bold;", ...args);
+}
 
 document.addEventListener("DOMContentLoaded", function () {
 
-log()("QUOTE APP LOADED");
+appLog("Loaded");
 
 // ---------------------
 // State
@@ -220,7 +218,7 @@ window.addEventListener("message", (data) => {
 // Save Quote
 // ---------------------
 saveQuoteBtn.addEventListener("click", () => {
-    log()("SAVE BUTTON CLICKED");
+    appLog("Save button clicked");
 
     const total = renderTable(); // get current total
     const quoteData = {
