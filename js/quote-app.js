@@ -68,36 +68,38 @@ addItemBtn.addEventListener("click", () => {
 
     requestCounter++;
 
-    if(pricing === "PricingTypeML") {
+if (pricing === "PricingTypeML") {
+
     const length = parseFloat(lengthInput.value);
-    if(isNaN(length) || length <= 0) return alert("Ingrese Largo válido");
+    if (isNaN(length) || length <= 0)
+        return alert("Ingrese Largo válido");
+
     itemData.length = length;
     itemData.requestId = requestCounter;
 
-    // Ask Wix for unit price, now including length
     window.parent.postMessage({
         type: "GET_ML_PRICE",
         itemType: type,
-        length: length,       // <--- include this
+        length: length,
         requestId: requestCounter
     }, "*");
-}
 
     } else {
+    
         const width = parseFloat(widthInput.value);
         const height = parseFloat(heightInput.value);
-        if (isNaN(width) || width <= 0 || isNaN(height) || height <= 0) 
+    
+        if (isNaN(width) || width <= 0 || isNaN(height) || height <= 0)
             return alert("Ingrese Ancho y Alto válidos");
-
-        itemData.width = width;         // store exact value
+    
+        itemData.width = width;
         itemData.height = height;
         itemData.requestId = requestCounter;
-
-        // Send rounded values for table pricing
+    
         window.parent.postMessage({
             type: "GET_PRICE",
             itemType: type,
-            width: Math.ceil(width / 100) * 100,   // round only for pricing
+            width: Math.ceil(width / 100) * 100,
             height: Math.ceil(height / 100) * 100,
             requestId: requestCounter
         }, "*");
