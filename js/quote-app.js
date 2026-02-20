@@ -200,15 +200,16 @@ window.addEventListener("message", (event) => {
 // ---------------------
 // Save Quote
 // ---------------------
-saveQuoteBtn.addEventListener("click", () => {
-const quoteData = {
-    quoteNumber: document.getElementById("quoteNumber").value,
-    customer: document.getElementById("customerName").value,
-    date: document.getElementById("quoteDate").value, // "dd/mm/yyyy"
-    items,
-    total: total
-};
+document.getElementById("saveQuoteBtn").addEventListener("click", function() {
+    console.log("SAVE BUTTON CLICKED");
 
-window.parent.postMessage({ type: "SAVE_QUOTE", quote: quoteData }, "*");
+    const quoteData = {
+        quoteNumber: document.getElementById("quoteNumber").value,
+        customer: document.getElementById("customerName").value,
+        date: document.getElementById("quoteDate").value,
+        items,
+        total
+    };
 
+    window.parent.postMessage({ type: "SAVE_QUOTE", quote: quoteData }, "*");
 });
