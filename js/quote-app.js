@@ -180,11 +180,12 @@ new Sortable(quoteBody, {
 window.addEventListener("message", (data) => {
     const msg = data.data;
 
+    // When Wix returns PRICE_RESULT for ML items:
     if(data.type === "PRICE_RESULT") {
         const item = items.find(i => i.requestId === data.requestId);
         if(item) {
+            // multiply by length if ML
             if(item.pricing === "PricingTypeML") {
-                // multiply unit price by length
                 item.price = data.price * item.length;
             } else {
                 item.price = data.price;
