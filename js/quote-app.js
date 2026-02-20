@@ -176,18 +176,24 @@ new Sortable(quoteBody, {
 // ---------------------
 // Handle Messages from Wix
 // ---------------------
-window.addEventListener("message", async (event) => {
+window.addEventListener("message", (event) => {
     const data = event.data;
 
-    // Price result
+    // Price result from Wix
     if (data.type === "PRICE_RESULT") {
-        const item = items.find(i => i.requestId === data.requestId);
+        const item = items.find(i => i.requestId === data.requestId); // Find the item by requestId
+
         if (item) {
-            item.price = data.price;
-            renderTable();
+            // If it's a PricingTypeML, calculate price based on length
+            if (item.pricing === "PricingTypeML") {
+                item.price = data.price * item.length;  // Multiply the unit price by the length
+            } else {
+                item.price = data.price;  // For other pricing types, just assign the price
+            }
+            renderTable(); // Re-render the table with the updated prices
         }
     }
-
+    
     // Quote saved
     if (data.type === "QUOTE_SAVED") {
         saveStatus.textContent = `✅ Presupuesto guardado! ID: ${data.quoteId}`;
