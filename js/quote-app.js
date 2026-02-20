@@ -1,24 +1,7 @@
-/* ============================
-   QUOTE APP DEBUG LOGGER
-   ============================ */
-
-const DEBUG = true; // turn to false in production
-
-function appLog(...args) {
-    if (DEBUG) console.log("%c[QUOTE APP]", "color:#2ecc71;font-weight:bold;", ...args);
-}
-
-function appWarn(...args) {
-    if (DEBUG) console.warn("%c[QUOTE APP]", "color:#f39c12;font-weight:bold;", ...args);
-}
-
-function appError(...args) {
-    console.error("%c[QUOTE APP]", "color:#e74c3c;font-weight:bold;", ...args);
-}
-
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("QUOTE APP BOOTED");
+});
 
-appLog("Loaded");
 
 // ---------------------
 // State
