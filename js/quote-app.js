@@ -77,7 +77,8 @@ addItemBtn.addEventListener("click", () => {
     if(pricing === "PricingTypeML") {
         const length = parseFloat(lengthInput.value);
         if(isNaN(length) || length <= 0) return alert("Ingrese Largo válido");
-        itemData.length = length;
+        itemData.length = length;           // original input
+        itemData.roundedLength = length;    // if you ever want to round, keep a rounded version
         requestCounter++;
         window.parent.postMessage({
             type: "GET_ML_PRICE",
@@ -89,8 +90,12 @@ addItemBtn.addEventListener("click", () => {
         const width = parseFloat(widthInput.value);
         const height = parseFloat(heightInput.value);
         if(isNaN(width) || width <= 0 || isNaN(height) || height <= 0) return alert("Ingrese Ancho y Alto válidos");
-        itemData.width = roundUp(width);
-        itemData.height = roundUp(height);
+    
+        itemData.originalWidth = width;
+        itemData.originalHeight = height;
+        itemData.width = roundUp(width);     // only used for pricing
+        itemData.height = roundUp(height);   // only used for pricing
+    
         requestCounter++;
         window.parent.postMessage({
             type: "GET_PRICE",
@@ -142,11 +147,11 @@ function renderTable() {
         }
 
         tr.innerHTML = `
-            <td>${item.type || ""}</td>
-            <td>${displayWidth}</td>
-            <td>${displayHeight}</td>
+            <td>${item.type}</td>
+            <td>${item.pricing === "PricingTypeML" ? item.length : item.originalWidth}</td>
+            <td>${item.pricing === "PricingTypeML" ? "" : item.originalHeight}</td>
             <td>${price ? formatCurrency(price) : "..."}</td>
-            <td>${quantity}</td>
+            <td>${item.quantity}</td>
             <td>${price ? formatCurrency(lineTotal) : "..."}</td>
             <td><button class="delete-btn" data-index="${index}">X</button></td>
         `;
