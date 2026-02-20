@@ -226,5 +226,3 @@ saveQuoteBtn.addEventListener("click", () => {
 
     window.parent.postMessage({ type: "SAVE_QUOTE", quote: quoteData }, "*");
 });
-
-});
