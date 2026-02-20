@@ -129,25 +129,30 @@ function renderTable() {
 
         const tr = document.createElement("tr");
 
-        // Display length under Ancho for ML items
-        const displayWidth = item.pricing === "PricingTypeML" ? item.length : item.width;
+        const displayWidth =
+            item.pricing === "PricingTypeML"
+                ? item.length
+                : item.width;
 
-        tr.innerHTML = `
-            <td>${item.type}</td>
-            <td>${displayWidth || ""}</td>
-            <td>${item.pricing === "PricingTypeML" ? "" : (item.height || "")}</td>
-            <td>${price ? formatCurrency(price) : "..."}</td>
-            <td>${item.quantity}</td>
-            <td>${price ? formatCurrency(lineTotal) : "..."}</td>
-            <td><button class="delete-btn" data-index="${index}">X</button></td>
-        `;
+        const displayHeight =
+            item.pricing === "PricingTypeML"
+                ? ""
+                : (item.height || "");
+
+        tr.innerHTML =
+            "<td>" + (item.type || "") + "</td>" +
+            "<td>" + (displayWidth || "") + "</td>" +
+            "<td>" + displayHeight + "</td>" +
+            "<td>" + (price ? formatCurrency(price) : "...") + "</td>" +
+            "<td>" + item.quantity + "</td>" +
+            "<td>" + (price ? formatCurrency(lineTotal) : "...") + "</td>" +
+            "<td><button class='delete-btn' data-index='" + index + "'>X</button></td>";
 
         quoteBody.appendChild(tr);
     });
 
     grandTotalSpan.textContent = formatCurrency(total);
 
-    // Attach delete buttons
     quoteBody.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const idx = parseInt(btn.dataset.index);
