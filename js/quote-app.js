@@ -68,20 +68,20 @@ addItemBtn.addEventListener("click", () => {
 
     requestCounter++;
 
-    if (pricing === "PricingTypeML") {
-        const length = parseFloat(lengthInput.value);
-        if (isNaN(length) || length <= 0) return alert("Ingrese Largo válido");
+    if(pricing === "PricingTypeML") {
+    const length = parseFloat(lengthInput.value);
+    if(isNaN(length) || length <= 0) return alert("Ingrese Largo válido");
+    itemData.length = length;
+    itemData.requestId = requestCounter;
 
-        itemData.length = length;       // store exact value
-        itemData.requestId = requestCounter;
-
-        // Send length to Wix for ML pricing
-        window.parent.postMessage({
-            type: "GET_ML_PRICE",
-            itemType: type,
-            length: length,             // <--- FIXED
-            requestId: requestCounter
-        }, "*");
+    // Ask Wix for unit price, now including length
+    window.parent.postMessage({
+        type: "GET_ML_PRICE",
+        itemType: type,
+        length: length,       // <--- include this
+        requestId: requestCounter
+    }, "*");
+}
 
     } else {
         const width = parseFloat(widthInput.value);
