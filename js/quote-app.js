@@ -217,3 +217,5 @@ document.addEventListener("DOMContentLoaded", function () {
         window.parent.postMessage({ type: "SAVE_QUOTE", quote: quoteData }, "*");
     });
 });
+
+document.getElementById("saveQuoteBtn").style.background = "red";
