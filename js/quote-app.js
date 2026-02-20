@@ -1,7 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("QUOTE APP BOOTED");
-});
-
+console.log("QUOTE APP LOADED");
 
 // ---------------------
 // State
@@ -27,22 +24,17 @@ const saveStatus = document.getElementById("saveStatus");
 // ---------------------
 // Utilities
 // ---------------------
-function roundUp(value) {
-    return Math.ceil(value / 100) * 100;
-}
-
 function formatCurrency(value) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
 }
 
 // ---------------------
-// Auto-fill date input in dd/mm/yyyy format
+// Auto-fill date input
 // ---------------------
 const today = new Date();
-const formattedDate = String(today.getDate()).padStart(2, '0') + '/' +
-                      String(today.getMonth() + 1).padStart(2, '0') + '/' +
-                      today.getFullYear();
-quoteDateInput.value = formattedDate;
+quoteDateInput.value = String(today.getDate()).padStart(2,'0') + '/' +
+                       String(today.getMonth()+1).padStart(2,'0') + '/' +
+                       today.getFullYear();
 
 // ---------------------
 // Handle Pricing Type Input Toggle
@@ -74,16 +66,15 @@ addItemBtn.addEventListener("click", () => {
 
     let itemData = { type, pricing, quantity };
 
+    requestCounter++;
+
     if(pricing === "PricingTypeML") {
         const length = parseFloat(lengthInput.value);
         if(isNaN(length) || length <= 0) return alert("Ingrese Largo válido");
-        itemData.length = length;        // for calculation
-        itemData.originalWidth = length; // for display in table
-
-        requestCounter++;
+        itemData.length = length;
         itemData.requestId = requestCounter;
 
-        // Ask Wix backend for unit price
+        // Ask Wix for unit price
         window.parent.postMessage({
             type: "GET_ML_PRICE",
             itemType: type,
@@ -94,20 +85,16 @@ addItemBtn.addEventListener("click", () => {
         const width = parseFloat(widthInput.value);
         const height = parseFloat(heightInput.value);
         if(isNaN(width) || width <= 0 || isNaN(height) || height <= 0) return alert("Ingrese Ancho y Alto válidos");
-
-        itemData.width = roundUp(width);   // for pricing calculation
-        itemData.height = roundUp(height); // for pricing calculation
-        itemData.originalWidth = width;    // store original for display
-        itemData.originalHeight = height;  // store original for display
-
-        requestCounter++;
+        itemData.width = width;
+        itemData.height = height;
         itemData.requestId = requestCounter;
 
+        // Ask Wix for table price
         window.parent.postMessage({
             type: "GET_PRICE",
             itemType: type,
-            width: itemData.width,
-            height: itemData.height,
+            width: width,
+            height: height,
             requestId: requestCounter
         }, "*");
     }
@@ -132,24 +119,25 @@ function renderTable() {
     let total = 0;
 
     items.forEach((item, index) => {
-        // Display values: ML items use length in Ancho, Table items use originalWidth
-        const displayWidth = item.pricing === "PricingTypeML" ? item.length : (item.originalWidth || "");
-        const displayHeight = item.pricing === "PricingTypeML" ? "" : (item.originalHeight || "");
-
-        const price = item.price || 0;
-        const lineTotal = price * item.quantity;
+        let price = item.price || 0;
+        let lineTotal = price * item.quantity;
         total += lineTotal;
 
         const tr = document.createElement("tr");
+
+        // Show Ancho = user input for table items, or length for ML items
+        const anchoDisplay = item.pricing === "PricingTypeML" ? item.length : item.width;
+
         tr.innerHTML = `
             <td>${item.type}</td>
-            <td>${displayWidth}</td>
-            <td>${displayHeight}</td>
+            <td>${anchoDisplay || ""}</td>
+            <td>${item.pricing === "PricingTypeML" ? "" : (item.height || "")}</td>
             <td>${price ? formatCurrency(price) : "..."}</td>
             <td>${item.quantity}</td>
             <td>${price ? formatCurrency(lineTotal) : "..."}</td>
             <td><button class="delete-btn" data-index="${index}">X</button></td>
         `;
+
         quoteBody.appendChild(tr);
     });
 
@@ -177,14 +165,13 @@ new Sortable(quoteBody, {
 // ---------------------
 // Handle Messages from Wix
 // ---------------------
-window.addEventListener("message", (data) => {
-    const msg = data.data;
+window.addEventListener("message", (event) => {
+    const data = event.data;
 
-    // When Wix returns PRICE_RESULT for ML items:
+    // Price result from Wix
     if(data.type === "PRICE_RESULT") {
         const item = items.find(i => i.requestId === data.requestId);
         if(item) {
-            // multiply by length if ML
             if(item.pricing === "PricingTypeML") {
                 item.price = data.price * item.length;
             } else {
@@ -194,23 +181,26 @@ window.addEventListener("message", (data) => {
         }
     }
 
-    if(msg.type === "QUOTE_SAVED") {
-        saveStatus.textContent = `✅ Presupuesto guardado! ID: ${msg.quoteId}`;
+    // Quote saved
+    if(data.type === "QUOTE_SAVED") {
+        saveStatus.textContent = `✅ Presupuesto guardado! ID: ${data.quoteId}`;
         setTimeout(() => { saveStatus.textContent = ""; }, 3000);
 
-        if(msg.nextQuoteNumber) {
-            quoteNumberInput.value = msg.nextQuoteNumber;
+        if(data.nextQuoteNumber) {
+            quoteNumberInput.value = data.nextQuoteNumber;
         }
     }
 
-    if(msg.type === "QUOTE_SAVE_ERROR") {
+    // Quote save error
+    if(data.type === "QUOTE_SAVE_ERROR") {
         saveStatus.style.color = "red";
-        saveStatus.textContent = `Error al guardar: ${msg.error}`;
+        saveStatus.textContent = `Error al guardar: ${data.error}`;
         setTimeout(() => { saveStatus.textContent = ""; saveStatus.style.color = "green"; }, 5000);
     }
 
-    if(msg.type === "SET_QUOTE_NUMBER") {
-        quoteNumberInput.value = msg.quoteNumber;
+    // Set initial quote number from Wix
+    if(data.type === "SET_QUOTE_NUMBER") {
+        quoteNumberInput.value = data.quoteNumber;
     }
 });
 
@@ -218,9 +208,7 @@ window.addEventListener("message", (data) => {
 // Save Quote
 // ---------------------
 saveQuoteBtn.addEventListener("click", () => {
-    console.log("Save button clicked");
-
-    const total = renderTable(); // get current total
+    const total = renderTable(); // recalc total
     const quoteData = {
         quoteNumber: quoteNumberInput.value,
         customer: customerNameInput.value,
@@ -229,6 +217,6 @@ saveQuoteBtn.addEventListener("click", () => {
         total
     };
 
+    console.log("SAVE BUTTON CLICKED", quoteData);
     window.parent.postMessage({ type: "SAVE_QUOTE", quote: quoteData }, "*");
 });
-
