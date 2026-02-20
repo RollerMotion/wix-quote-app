@@ -1,6 +1,11 @@
+// Custom logger to filter out unrelated messages
+const log = (...args) => console.log("[QUOTE APP]", ...args);
+const warn = (...args) => console.warn("[QUOTE APP]", ...args);
+const error = (...args) => console.error("[QUOTE APP]", ...args);
+
 document.addEventListener("DOMContentLoaded", function () {
 
-console.log("QUOTE APP LOADED");
+log()("QUOTE APP LOADED");
 
 // ---------------------
 // State
@@ -200,7 +205,7 @@ window.addEventListener("message", (data) => {
 // Save Quote
 // ---------------------
 saveQuoteBtn.addEventListener("click", () => {
-    console.log("SAVE BUTTON CLICKED");
+    log()("SAVE BUTTON CLICKED");
 
     const total = renderTable(); // get current total
     const quoteData = {
