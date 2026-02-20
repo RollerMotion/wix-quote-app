@@ -122,21 +122,34 @@ function renderTable() {
     let total = 0;
 
     items.forEach((item, index) => {
-        const price = item.price || 0;
-        const lineTotal = price * item.quantity;
+        const price = Number(item.price) || 0;
+        const quantity = Number(item.quantity) || 1;
+        const lineTotal = price * quantity;
         total += lineTotal;
 
         const tr = document.createElement("tr");
 
+        // Determine displayed width/height
+        let displayWidth = "";
+        let displayHeight = "";
+
+        if (item.pricing === "PricingTypeML") {
+            displayWidth = item.length || "";
+            displayHeight = "";
+        } else {
+            displayWidth = item.width || "";
+            displayHeight = item.height || "";
+        }
+
         tr.innerHTML = `
-    <td>${item.type}</td>
-    <td>${item.pricing === "PricingTypeML" ? item.length : (item.width || "")}</td>
-    <td>${item.pricing === "PricingTypeML" ? "" : (item.height || "")}</td>
-    <td>${price ? formatCurrency(price) : "..."}</td>
-    <td>${item.quantity}</td>
-    <td>${price ? formatCurrency(lineTotal) : "..."}</td>
-    <td><button class="delete-btn" data-index="${index}">X</button></td>
-`;
+            <td>${item.type || ""}</td>
+            <td>${displayWidth}</td>
+            <td>${displayHeight}</td>
+            <td>${price ? formatCurrency(price) : "..."}</td>
+            <td>${quantity}</td>
+            <td>${price ? formatCurrency(lineTotal) : "..."}</td>
+            <td><button class="delete-btn" data-index="${index}">X</button></td>
+        `;
 
         quoteBody.appendChild(tr);
     });
@@ -146,7 +159,7 @@ function renderTable() {
     // Attach delete buttons
     quoteBody.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-            const idx = parseInt(btn.dataset.index);
+            const idx = Number(btn.dataset.index);
             items.splice(idx, 1);
             renderTable();
         });
