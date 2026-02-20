@@ -213,7 +213,7 @@ window.addEventListener("message", (data) => {
 // Save Quote
 // ---------------------
 saveQuoteBtn.addEventListener("click", () => {
-    appLog("Save button clicked");
+    console.log("Save button clicked");
 
     const total = renderTable(); // get current total
     const quoteData = {
