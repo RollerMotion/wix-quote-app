@@ -68,33 +68,37 @@ addItemBtn.addEventListener("click", () => {
 
     requestCounter++;
 
-    if(pricing === "PricingTypeML") {
+    if (pricing === "PricingTypeML") {
         const length = parseFloat(lengthInput.value);
-        if(isNaN(length) || length <= 0) return alert("Ingrese Largo válido");
-        itemData.length = length;
+        if (isNaN(length) || length <= 0) return alert("Ingrese Largo válido");
+
+        itemData.length = length;       // store exact value
         itemData.requestId = requestCounter;
 
-        // Ask Wix for unit price
+        // Send length to Wix for ML pricing
         window.parent.postMessage({
             type: "GET_ML_PRICE",
             itemType: type,
+            length: length,             // <--- FIXED
             requestId: requestCounter
         }, "*");
 
     } else {
         const width = parseFloat(widthInput.value);
         const height = parseFloat(heightInput.value);
-        if(isNaN(width) || width <= 0 || isNaN(height) || height <= 0) return alert("Ingrese Ancho y Alto válidos");
-        itemData.width = width;
+        if (isNaN(width) || width <= 0 || isNaN(height) || height <= 0) 
+            return alert("Ingrese Ancho y Alto válidos");
+
+        itemData.width = width;         // store exact value
         itemData.height = height;
         itemData.requestId = requestCounter;
 
-        // Ask Wix for table price
+        // Send rounded values for table pricing
         window.parent.postMessage({
             type: "GET_PRICE",
             itemType: type,
-            width: width,
-            height: height,
+            width: Math.ceil(width / 100) * 100,   // round only for pricing
+            height: Math.ceil(height / 100) * 100,
             requestId: requestCounter
         }, "*");
     }
@@ -119,18 +123,18 @@ function renderTable() {
     let total = 0;
 
     items.forEach((item, index) => {
-        let price = item.price || 0;
-        let lineTotal = price * item.quantity;
+        const price = item.price || 0;
+        const lineTotal = price * item.quantity;
         total += lineTotal;
 
         const tr = document.createElement("tr");
 
-        // Show Ancho = user input for table items, or length for ML items
-        const anchoDisplay = item.pricing === "PricingTypeML" ? item.length : item.width;
+        // Display length under Ancho for ML items
+        const displayWidth = item.pricing === "PricingTypeML" ? item.length : item.width;
 
         tr.innerHTML = `
             <td>${item.type}</td>
-            <td>${anchoDisplay || ""}</td>
+            <td>${displayWidth || ""}</td>
             <td>${item.pricing === "PricingTypeML" ? "" : (item.height || "")}</td>
             <td>${price ? formatCurrency(price) : "..."}</td>
             <td>${item.quantity}</td>
@@ -165,58 +169,51 @@ new Sortable(quoteBody, {
 // ---------------------
 // Handle Messages from Wix
 // ---------------------
-window.addEventListener("message", (event) => {
+window.addEventListener("message", async (event) => {
     const data = event.data;
 
-    // Price result from Wix
-    if(data.type === "PRICE_RESULT") {
+    // Price result
+    if (data.type === "PRICE_RESULT") {
         const item = items.find(i => i.requestId === data.requestId);
-        if(item) {
-            if(item.pricing === "PricingTypeML") {
-                item.price = data.price * item.length;
-            } else {
-                item.price = data.price;
-            }
+        if (item) {
+            item.price = data.price;
             renderTable();
         }
     }
 
     // Quote saved
-    if(data.type === "QUOTE_SAVED") {
+    if (data.type === "QUOTE_SAVED") {
         saveStatus.textContent = `✅ Presupuesto guardado! ID: ${data.quoteId}`;
         setTimeout(() => { saveStatus.textContent = ""; }, 3000);
 
-        if(data.nextQuoteNumber) {
+        if (data.nextQuoteNumber) {
             quoteNumberInput.value = data.nextQuoteNumber;
         }
     }
 
-    // Quote save error
-    if(data.type === "QUOTE_SAVE_ERROR") {
+    // Error
+    if (data.type === "QUOTE_SAVE_ERROR") {
         saveStatus.style.color = "red";
         saveStatus.textContent = `Error al guardar: ${data.error}`;
         setTimeout(() => { saveStatus.textContent = ""; saveStatus.style.color = "green"; }, 5000);
     }
 
-    // Set initial quote number from Wix
-    if(data.type === "SET_QUOTE_NUMBER") {
+    // Initial quote number
+    if (data.type === "SET_QUOTE_NUMBER") {
         quoteNumberInput.value = data.quoteNumber;
     }
 });
 
-// ---------------------
-// Save Quote
-// ---------------------
-saveQuoteBtn.addEventListener("click", () => {
-    const total = renderTable(); // recalc total
+// Save Quote button
+saveQuoteBtn.addEventListener("click", function () {
     const quoteData = {
         quoteNumber: quoteNumberInput.value,
         customer: customerNameInput.value,
         date: quoteDateInput.value,
-        items,
-        total
+        items: items,
+        total: items.reduce((sum, i) => sum + ((i.price || 0) * i.quantity), 0)
     };
 
-    console.log("SAVE BUTTON CLICKED", quoteData);
     window.parent.postMessage({ type: "SAVE_QUOTE", quote: quoteData }, "*");
 });
+
