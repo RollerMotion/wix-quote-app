@@ -77,26 +77,32 @@ addItemBtn.addEventListener("click", () => {
     if(pricing === "PricingTypeML") {
         const length = parseFloat(lengthInput.value);
         if(isNaN(length) || length <= 0) return alert("Ingrese Largo válido");
-        itemData.length = length;           // original input
-        itemData.roundedLength = length;    // if you ever want to round, keep a rounded version
+        itemData.length = length;        // for calculation
+        itemData.originalWidth = length; // for display in table
+
         requestCounter++;
+        itemData.requestId = requestCounter;
+
+        // Ask Wix backend for unit price
         window.parent.postMessage({
             type: "GET_ML_PRICE",
             itemType: type,
             requestId: requestCounter
         }, "*");
-        itemData.requestId = requestCounter;
+
     } else {
         const width = parseFloat(widthInput.value);
         const height = parseFloat(heightInput.value);
         if(isNaN(width) || width <= 0 || isNaN(height) || height <= 0) return alert("Ingrese Ancho y Alto válidos");
-    
-        itemData.originalWidth = width;
-        itemData.originalHeight = height;
-        itemData.width = roundUp(width);     // only used for pricing
-        itemData.height = roundUp(height);   // only used for pricing
-    
+
+        itemData.width = roundUp(width);   // for pricing calculation
+        itemData.height = roundUp(height); // for pricing calculation
+        itemData.originalWidth = width;    // store original for display
+        itemData.originalHeight = height;  // store original for display
+
         requestCounter++;
+        itemData.requestId = requestCounter;
+
         window.parent.postMessage({
             type: "GET_PRICE",
             itemType: type,
@@ -104,7 +110,6 @@ addItemBtn.addEventListener("click", () => {
             height: itemData.height,
             requestId: requestCounter
         }, "*");
-        itemData.requestId = requestCounter;
     }
 
     items.push(itemData);
@@ -127,35 +132,24 @@ function renderTable() {
     let total = 0;
 
     items.forEach((item, index) => {
-        const price = Number(item.price) || 0;
-        const quantity = Number(item.quantity) || 1;
-        const lineTotal = price * quantity;
+        // Display values: ML items use length in Ancho, Table items use originalWidth
+        const displayWidth = item.pricing === "PricingTypeML" ? item.length : (item.originalWidth || "");
+        const displayHeight = item.pricing === "PricingTypeML" ? "" : (item.originalHeight || "");
+
+        const price = item.price || 0;
+        const lineTotal = price * item.quantity;
         total += lineTotal;
 
         const tr = document.createElement("tr");
-
-        // Determine displayed width/height
-        let displayWidth = "";
-        let displayHeight = "";
-
-        if (item.pricing === "PricingTypeML") {
-            displayWidth = item.length || "";
-            displayHeight = "";
-        } else {
-            displayWidth = item.width || "";
-            displayHeight = item.height || "";
-        }
-
         tr.innerHTML = `
             <td>${item.type}</td>
-            <td>${item.pricing === "PricingTypeML" ? item.length : item.originalWidth}</td>
-            <td>${item.pricing === "PricingTypeML" ? "" : item.originalHeight}</td>
+            <td>${displayWidth}</td>
+            <td>${displayHeight}</td>
             <td>${price ? formatCurrency(price) : "..."}</td>
             <td>${item.quantity}</td>
             <td>${price ? formatCurrency(lineTotal) : "..."}</td>
             <td><button class="delete-btn" data-index="${index}">X</button></td>
         `;
-
         quoteBody.appendChild(tr);
     });
 
@@ -164,7 +158,7 @@ function renderTable() {
     // Attach delete buttons
     quoteBody.querySelectorAll(".delete-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-            const idx = Number(btn.dataset.index);
+            const idx = parseInt(btn.dataset.index);
             items.splice(idx, 1);
             renderTable();
         });
@@ -186,10 +180,15 @@ new Sortable(quoteBody, {
 window.addEventListener("message", (data) => {
     const msg = data.data;
 
-    if(msg.type === "PRICE_RESULT") {
-        const item = items.find(i => i.requestId === msg.requestId);
+    if(data.type === "PRICE_RESULT") {
+        const item = items.find(i => i.requestId === data.requestId);
         if(item) {
-            item.price = msg.price;
+            if(item.pricing === "PricingTypeML") {
+                // multiply unit price by length
+                item.price = data.price * item.length;
+            } else {
+                item.price = data.price;
+            }
             renderTable();
         }
     }
