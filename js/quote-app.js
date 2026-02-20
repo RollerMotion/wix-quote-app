@@ -129,14 +129,13 @@ function renderTable() {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>${item.type}</td>
-            <td>${item.width || ""}</td>
-            <td>${item.height || ""}</td>
-            <td>${item.length || ""}</td>
-            <td>${price ? formatCurrency(price) : "..."}</td>
-            <td>${item.quantity}</td>
-            <td>${price ? formatCurrency(lineTotal) : "..."}</td>
-            <td><button class="delete-btn" data-index="${index}">X</button></td>
+                <td>${item.type}</td>
+                <td>${item.pricing === "PricingTypeML" ? item.length : (item.width || "")}</td>
+                <td>${item.pricing === "PricingTypeML" ? "" : (item.height || "")}</td>
+                <td>${price ? formatCurrency(price) : "..."}</td>
+                <td>${item.quantity}</td>
+                <td>${price ? formatCurrency(lineTotal) : "..."}</td>
+                <td><button class="delete-btn" data-index="${index}">X</button></td>
         `;
 
         quoteBody.appendChild(tr);
