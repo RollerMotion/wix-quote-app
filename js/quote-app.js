@@ -3,6 +3,21 @@ const log = (...args) => console.log("[QUOTE APP]", ...args);
 const warn = (...args) => console.warn("[QUOTE APP]", ...args);
 const error = (...args) => console.error("[QUOTE APP]", ...args);
 
+// Filter console messages to only show [QUOTE APP] logs
+const originalLog = console.log;
+const originalWarn = console.warn;
+const originalError = console.error;
+
+console.log = (...args) => {
+    if(args[0] && typeof args[0] === "string" && args[0].includes("[QUOTE APP]")) originalLog(...args);
+};
+console.warn = (...args) => {
+    if(args[0] && typeof args[0] === "string" && args[0].includes("[QUOTE APP]")) originalWarn(...args);
+};
+console.error = (...args) => {
+    if(args[0] && typeof args[0] === "string" && args[0].includes("[QUOTE APP]")) originalError(...args);
+};
+
 document.addEventListener("DOMContentLoaded", function () {
 
 log()("QUOTE APP LOADED");
