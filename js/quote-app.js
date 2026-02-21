@@ -1,5 +1,38 @@
 console.log("QUOTE APP LOADED");
 
+window.addEventListener("message", (event) => {
+
+    const msg = event.data;
+
+    if (msg.type === "QUOTE_LOADED") {
+
+        const quote = msg.quote;
+
+        // Fill form
+        quoteNumberInput.value = quote.title;
+        customerInput.value = quote.customer;
+
+        // Format date back to dd/mm/yyyy
+        const d = new Date(quote.date);
+        const formattedDate =
+            String(d.getUTCDate()).padStart(2, '0') + "/" +
+            String(d.getUTCMonth() + 1).padStart(2, '0') + "/" +
+            d.getUTCFullYear();
+
+        dateInput.value = formattedDate;
+
+        // Replace items
+        items = quote.items || [];
+
+        // 4. Re-render the table
+        renderTable();
+    }
+
+    if (msg.type === "QUOTE_LOAD_ERROR") {
+        alert(msg.error);
+    }
+});
+
 // ---------------------
 // State
 // ---------------------
