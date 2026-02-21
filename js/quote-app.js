@@ -263,23 +263,6 @@ saveQuoteBtn.addEventListener("click", function () {
     window.parent.postMessage({ type: "SAVE_QUOTE", quote: quoteData }, "*");
 });
 
-// ---------------------
-//Returns a quote by its quote number
-// ---------------------
-export async function getQuoteByNumber(quoteNumber) {
-
-    const results = await wixData.query("Quotes")
-        .eq("title", quoteNumber)
-        .limit(1)
-        .find();
-
-    if (results.items.length === 0) {
-        throw new Error(`Quote ${quoteNumber} not found`);
-    }
-
-    return results.items[0];
-}
-
 const loadQuoteBtn = document.getElementById("loadQuoteBtn");
 const loadQuoteInput = document.getElementById("loadQuoteInput");
 
