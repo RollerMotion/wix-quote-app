@@ -246,3 +246,21 @@ export async function getQuoteByNumber(quoteNumber) {
 
     return results.items[0];
 }
+
+const loadQuoteBtn = document.getElementById("loadQuoteBtn");
+const loadQuoteInput = document.getElementById("loadQuoteInput");
+
+loadQuoteBtn.addEventListener("click", () => {
+
+    const quoteNumber = loadQuoteInput.value.trim();
+
+    if (!quoteNumber) {
+        alert("Ingrese número de cotización");
+        return;
+    }
+
+    window.parent.postMessage({
+        type: "GET_QUOTE_BY_NUMBER",
+        quoteNumber
+    }, "*");
+});
