@@ -12,17 +12,8 @@ window.addEventListener("message", (event) => {
         quoteNumberInput.value = quote.title;
         customerInput.value = quote.customer;
 
-        // Format date back to dd/mm/yyyy
-        const d = new Date(quote.date);
-        const formattedDate =
-            String(d.getUTCDate()).padStart(2, '0') + "/" +
-            String(d.getUTCMonth() + 1).padStart(2, '0') + "/" +
-            d.getUTCFullYear();
-
-        dateInput.value = formattedDate;
-
         // Replace items
-        items = quote.items || [];
+        items = quote.items.map(item => ({ ...item }));
 
         // 4. Re-render the table
         renderTable();
