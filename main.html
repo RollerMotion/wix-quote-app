@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presupuestos</title>
+
+<!-- CSS hosted on GitHub -->
+<link rel="stylesheet" href="https://rollermotion.github.io/wix-quote-app/css/quote-app.css">
+
+<!-- Main JS module hosted on GitHub -->
+<script type="module" src="https://rollermotion.github.io/wix-quote-app/js/quote-app.js"></script>
+
+<!-- Optional: Sortable.js for drag-and-drop -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+</head>
+<body>
+
+<!-- Logo -->
+<div class="logo-header">
+    <img src="https://static.wixstatic.com/media/e1b04f_3307e745ed024ff78711ac7816affbd8~mv2.png" alt="Company Logo">
+</div>
+
+<!-- Header Inputs -->
+<div class="card header-grid">
+    <div>
+        <label>Cliente:</label><br>
+        <input type="text" id="customerName" placeholder="Cliente">
+    </div>
+    <div>
+        <label>Presupuesto #:</label><br>
+        <input type="text" id="quoteNumber" placeholder="Auto Generated" readonly>
+    </div>
+    <div>
+        <label>Fecha:</label><br>
+        <input type="text" id="quoteDate" readonly>
+    </div>
+</div>
+
+<!-- Item Inputs -->
+<div class="card no-print">
+    <label>Item Type:</label><br>
+    <select id="itemType">
+        <option value="type1" data-pricing="PricingTypeTable">Type 1</option>
+        <option value="type2" data-pricing="PricingTypeTable">Type 2</option>
+        <option value="typeML" data-pricing="PricingTypeML">Type ML</option>
+    </select>
+
+    <input type="number" id="width" placeholder="Ancho" min="1" class="small-input">
+    <input type="number" id="height" placeholder="Alto" min="1" class="small-input">
+    <input type="number" id="length" placeholder="Largo" class="small-input" style="display:none;">
+    <input type="number" id="quantity" placeholder="Cantidad" min="1" value="1" class="quantity-input">
+
+    <button class="primary-btn" id="addItemBtn">Agregar Item</button>
+	
+	<input type="text" id="loadQuoteInput" placeholder="Cargar Presu #">
+	<button id="loadQuoteBtn">Cargar</button>
+
+    <div id="saveStatus" style="color: green; font-weight: bold; margin-top: 10px;"></div>
+</div>
+
+<!-- Quote Table -->
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Ancho</th>
+                <th>Alto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="quoteBody"></tbody>
+    </table>
+
+    <div class="total-section">
+        Total: <span id="grandTotal">$0.00</span>
+    </div>
+
+    <button id="saveQuoteBtn">Guardar Presupuesto</button>
+	<div id="saveStatus" style="color: green; font-weight: bold; margin-top: 10px;"></div>
+</div>
+
+</body>
+</html>
